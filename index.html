@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AIゲームランド</title>
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --secondary: #06b6d4;
+      --text: #1f2937;
+      --subtext: #64748b;
+      --card: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family:
+        "Segoe UI",
+        "Hiragino Sans",
+        "Yu Gothic",
+        "Meiryo",
+        sans-serif;
+
+      background: linear-gradient(
+        180deg,
+        #eef5ff 0%,
+        #f8fafc 45%,
+        #f1f5f9 100%
+      );
+
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* =========================
+       ヘッダー
+    ========================= */
+
+    header {
+      text-align: center;
+      color: white;
+      padding: 65px 20px 70px;
+
+      background: linear-gradient(
+        135deg,
+        #4f46e5 0%,
+        #6366f1 45%,
+        #06b6d4 100%
+      );
+    }
+
+    .hero-badge {
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 8px 17px;
+
+      color: #4f46e5;
+      background: rgba(255,255,255,0.95);
+
+      border-radius: 999px;
+
+      font-size: 14px;
+      font-weight: bold;
+
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      margin-bottom: 15px;
+
+      font-size: clamp(32px, 7vw, 60px);
+      line-height: 1.2;
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      font-size: clamp(15px, 3vw, 19px);
+      opacity: 0.95;
+    }
+
+    /* =========================
+       メイン
+    ========================= */
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 50px 20px;
+    }
+
+    .section-title {
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 30px;
+    }
+
+    .section-description {
+      margin-bottom: 40px;
+
+      color: var(--subtext);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    /* =========================
+       ゲーム一覧
+    ========================= */
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+    }
+
+    /* =========================
+       カード
+    ========================= */
+
+    .game-card {
+      display: flex;
+      flex-direction: column;
+
+      overflow: hidden;
+
+      background: var(--card);
+      border-radius: 22px;
+
+      box-shadow:
+        0 10px 30px rgba(15, 23, 42, 0.09);
+
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-7px);
+
+      box-shadow:
+        0 18px 38px rgba(15, 23, 42, 0.15);
+    }
+
+    /* =========================
+       スクリーンショット
+    ========================= */
+
+    .thumbnail-link {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+
+      overflow: hidden;
+      background: #e2e8f0;
+
+      text-decoration: none;
+    }
+
+    .thumbnail {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      transition: transform 0.4s ease;
+    }
+
+    .game-card:hover .thumbnail {
+      transform: scale(1.04);
+    }
+
+    /* =========================
+       カード内容
+    ========================= */
+
+    .game-content {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+
+      padding: 25px;
+    }
+
+    .genre {
+      display: inline-block;
+      width: fit-content;
+
+      margin-bottom: 12px;
+      padding: 5px 11px;
+
+      color: #4338ca;
+      background: #eef2ff;
+
+      border-radius: 999px;
+
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .game-content h2 {
+      margin-bottom: 12px;
+
+      font-size: 23px;
+      line-height: 1.4;
+    }
+
+    .description {
+      flex: 1;
+
+      margin-bottom: 22px;
+
+      color: #475569;
+
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    /* =========================
+       ゲームをプレイ
+    ========================= */
+
+    .play-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      width: 100%;
+      min-height: 52px;
+
+      padding: 13px 20px;
+
+      color: white;
+
+      background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--secondary)
+      );
+
+      border-radius: 13px;
+
+      box-shadow:
+        0 5px 14px rgba(79,70,229,0.22);
+
+      font-size: 16px;
+      font-weight: bold;
+
+      text-align: center;
+      text-decoration: none;
+
+      transition:
+        transform 0.2s ease,
+        filter 0.2s ease;
+    }
+
+    .play-button:hover {
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+    }
+
+    .play-button:active {
+      transform: translateY(0);
+    }
+
+    /* =========================
+       遊び方案内
+    ========================= */
+
+    .information {
+      margin-top: 50px;
+      padding: 28px 30px;
+
+      background: white;
+      border-radius: 20px;
+
+      box-shadow:
+        0 8px 25px rgba(15,23,42,0.07);
+    }
+
+    .information h2 {
+      margin-bottom: 15px;
+      font-size: 21px;
+    }
+
+    .information ul {
+      padding-left: 22px;
+
+      color: #475569;
+      line-height: 2;
+    }
+
+    /* =========================
+       フッター
+    ========================= */
+
+    footer {
+      padding: 10px 20px 35px;
+
+      color: #64748b;
+
+      font-size: 13px;
+      text-align: center;
+    }
+
+    /* =========================
+       スマートフォン
+    ========================= */
+
+    @media (max-width: 700px) {
+
+      header {
+        padding: 45px 20px 50px;
+      }
+
+      .container {
+        padding: 35px 15px;
+      }
+
+      .game-grid {
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+
+      .section-title {
+        font-size: 25px;
+      }
+
+      .game-content {
+        padding: 20px;
+      }
+
+      .game-content h2 {
+        font-size: 21px;
+      }
+
+      .information {
+        margin-top: 35px;
+        padding: 23px;
+      }
+
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+
+  <!-- =========================
+       ヘッダー
+  ========================== -->
+
+  <header>
+
+    <div class="hero-badge">
+      🎮 オリジナルゲームコレクション
+    </div>
+
+    <h1>
+      AIゲームランド
+    </h1>
+
+    <p>
+      気になるゲームを選んで遊んでみよう！
+    </p>
+
+  </header>
+
+
+  <!-- =========================
+       メイン
+  ========================== -->
+
+  <main class="container">
+
+    <h2 class="section-title">
+      🎮 ゲーム一覧
+    </h2>
+
+    <p class="section-description">
+      遊びたいゲームを選んでください。
+    </p>
+
+
+    <div class="game-grid">
+
+
+      <!-- =====================
+           ぷにリンク！
+      ====================== -->
+
+      <article class="game-card">
+
+        <a
+          href="puni-link.html"
+          class="thumbnail-link"
+          aria-label="ぷにリンク！をプレイ"
+        >
+          <img
+            src="images/puni-link.jpg"
+            alt="ぷにリンク！のゲーム画面"
+            class="thumbnail"
+          >
+        </a>
+
+        <div class="game-content">
+
+          <span class="genre">
+            🧩 パズル
+          </span>
+
+          <h2>
+            ぷにリンク！
+          </h2>
+
+          <p class="description">
+            同じピースをなぞってつなげる爽快パズルゲーム。
+            コンボやスペシャルピースを駆使して、
+            ハイスコアを目指そう！
+          </p>
+
+          <a
+            href="puni-link.html"
+            class="play-button"
+          >
+            ▶ ゲームをプレイ
+          </a>
+
+        </div>
+
+      </article>
+
+
+      <!-- =====================
+           ふわもこスター・ジャンプ
+      ====================== -->
+
+      <article class="game-card">
+
+        <a
+          href="star-jump.html"
+          class="thumbnail-link"
+          aria-label="ふわもこスター・ジャンプをプレイ"
+        >
+          <img
+            src="images/star-jump.jpg"
+            alt="ふわもこスター・ジャンプのゲーム画面"
+            class="thumbnail"
+          >
+        </a>
+
+        <div class="game-content">
+
+          <span class="genre">
+            ⭐ アクション
+          </span>
+
+          <h2>
+            ふわもこスター・ジャンプ
+          </h2>
+
+          <p class="description">
+            モコと一緒にジャンプしながら星を集めよう！
+            シンプルな操作で楽しめる、
+            かわいいジャンプアクションゲーム。
+          </p>
+
+          <a
+            href="star-jump.html"
+            class="play-button"
+          >
+            ▶ ゲームをプレイ
+          </a>
+
+        </div>
+
+      </article>
+
+
+      <!-- =====================
+           ミスティックメモリー
+      ====================== -->
+
+      <article class="game-card">
+
+        <a
+          href="mystic-memory.html"
+          class="thumbnail-link"
+          aria-label="ミスティックメモリーをプレイ"
+        >
+          <img
+            src="images/mystic-memory.jpg"
+            alt="ミスティックメモリーのゲーム画面"
+            class="thumbnail"
+          >
+        </a>
+
+        <div class="game-content">
+
+          <span class="genre">
+            🔮 記憶ゲーム
+          </span>
+
+          <h2>
+            ミスティックメモリー
+          </h2>
+
+          <p class="description">
+            魔法のカードをめくって同じカードを見つけよう。
+            記憶力を使って楽しむ、
+            ファンタジー風のカードゲーム。
+          </p>
+
+          <a
+            href="mystic-memory.html"
+            class="play-button"
+          >
+            ▶ ゲームをプレイ
+          </a>
+
+        </div>
+
+      </article>
+
+
+      <!-- =====================
+           ルミナの回路迷宮
+      ====================== -->
+
+      <article class="game-card">
+
+        <a
+          href="lumina-circuit.html"
+          class="thumbnail-link"
+          aria-label="ルミナの回路迷宮をプレイ"
+        >
+          <img
+            src="images/lumina-circuit.jpg"
+            alt="ルミナの回路迷宮のゲーム画面"
+            class="thumbnail"
+          >
+        </a>
+
+        <div class="game-content">
+
+          <span class="genre">
+            ⚡ 回路パズル
+          </span>
+
+          <h2>
+            ルミナの回路迷宮
+          </h2>
+
+          <p class="description">
+            回路を回転させて、
+            スタートからゴールまで光をつなげよう。
+            ひらめきが試される回路パズルゲーム。
+          </p>
+
+          <a
+            href="lumina-circuit.html"
+            class="play-button"
+          >
+            ▶ ゲームをプレイ
+          </a>
+
+        </div>
+
+      </article>
+
+
+    </div>
+
+
+    <!-- =====================
+         遊び方案内
+    ====================== -->
+
+    <section class="information">
+
+      <h2>
+        📱 ゲームを遊ぶには
+      </h2>
+
+      <ul>
+        <li>遊びたいゲームの「ゲームをプレイ」を押してください。</li>
+        <li>ゲーム画面の「← もどる」を押すと、AIゲームランドへ戻れます。</li>
+        <li>スマートフォン・パソコンのどちらからでもアクセスできます。</li>
+        <li>スマートフォンでは縦画面でのプレイがおすすめです。</li>
+      </ul>
+
+    </section>
+
+
+  </main>
+
+
+  <footer>
+    © 2026 AIゲームランド
+  </footer>
+
+
+</body>
+</html>

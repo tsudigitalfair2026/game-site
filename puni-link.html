@@ -1,0 +1,2745 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#fff2a8">
+<title>ぷにリンク！</title>
+
+<style>
+:root {
+  --ink: #453b62;
+  --pink: #ff6fae;
+  --pink-dark: #dd4788;
+  --yellow: #ffd85e;
+  --mint: #76dfc4;
+  --blue: #73c7ff;
+  --purple: #b494ff;
+  --danger: #ff4c61;
+  --panel: rgba(255, 255, 255, 0.9);
+  --shadow: 0 8px 0 rgba(83, 62, 113, 0.14);
+  --board-size: min(94vw, 57dvh, 500px);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink);
+  background: #fff2a8;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  overscroll-behavior: none;
+}
+
+body {
+  min-height: 100dvh;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+button {
+  color: var(--ink);
+}
+
+button:focus-visible,
+select:focus-visible {
+  outline: 4px solid rgba(72, 103, 255, 0.45);
+  outline-offset: 3px;
+}
+
+/* 背景装飾 */
+.bg-decoration,
+.bg-decoration::before,
+.bg-decoration::after {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  content: "";
+  pointer-events: none;
+}
+
+.bg-decoration {
+  background:
+    radial-gradient(circle at 10% 16%, rgba(255,255,255,.86) 0 7px, transparent 8px),
+    radial-gradient(circle at 87% 13%, rgba(255,255,255,.65) 0 13px, transparent 14px),
+    radial-gradient(circle at 17% 81%, rgba(255,160,198,.35) 0 16px, transparent 17px),
+    radial-gradient(circle at 89% 73%, rgba(102,211,255,.32) 0 20px, transparent 21px),
+    linear-gradient(160deg, #fff3a9 0%, #ffd5e8 48%, #cdeeff 100%);
+}
+
+.bg-decoration::before {
+  opacity: .55;
+  background-image:
+    radial-gradient(circle, #fff 0 3px, transparent 4px),
+    radial-gradient(circle, rgba(255,111,174,.55) 0 2px, transparent 3px);
+  background-position: 8px 12px, 34px 39px;
+  background-size: 54px 54px;
+}
+
+.bg-decoration::after {
+  opacity: .36;
+  background:
+    conic-gradient(
+      from 18deg at 82% 36%,
+      transparent 0 8%,
+      #fff 9% 11%,
+      transparent 12% 100%
+    );
+}
+
+.screen {
+  display: none;
+  width: 100%;
+  height: 100dvh;
+  padding:
+    max(10px, env(safe-area-inset-top))
+    10px
+    max(10px, env(safe-area-inset-bottom));
+  overflow: hidden;
+}
+
+.screen.active {
+  display: flex;
+}
+
+.panel {
+  border: 3px solid rgba(255,255,255,.9);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* 共通ボタン */
+.pop-button {
+  min-height: 48px;
+  padding: 10px 17px;
+  border: 0;
+  border-radius: 18px;
+  background: linear-gradient(#fff, #fff5fb);
+  box-shadow:
+    0 6px 0 rgba(91,70,120,.18),
+    0 2px 8px rgba(91,70,120,.12);
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .1s, box-shadow .1s, filter .15s;
+}
+
+.pop-button:active {
+  transform: translateY(4px) scale(.97);
+  box-shadow: 0 2px 0 rgba(91,70,120,.18);
+}
+
+.pop-button.primary {
+  color: #fff;
+  background: linear-gradient(180deg, #ff86bd, #ff589e);
+  text-shadow: 0 2px rgba(141,35,88,.22);
+}
+
+.pop-button.secondary {
+  background: linear-gradient(180deg, #fff9a9, #ffd75b);
+}
+
+.pop-button.blue {
+  background: linear-gradient(180deg, #b9ecff, #73c7ff);
+}
+
+.pop-button.small {
+  min-height: 42px;
+  padding: 7px 12px;
+  border-radius: 15px;
+  font-size: .88rem;
+}
+
+.pop-button[disabled] {
+  opacity: .55;
+  cursor: default;
+}
+
+/* タイトル画面 */
+#titleScreen {
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.title-card {
+  width: min(94vw, 470px);
+  max-height: calc(100dvh - 20px);
+  padding: clamp(14px, 4vw, 26px);
+  border-radius: 32px;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.logo {
+  margin: 0;
+  color: #ff579a;
+  font-size: clamp(2.2rem, 12vw, 4.5rem);
+  line-height: .95;
+  letter-spacing: -.08em;
+  text-shadow:
+    0 4px 0 #fff,
+    0 8px 0 rgba(158,83,132,.15);
+}
+
+.logo-sub {
+  margin: 9px 0 4px;
+  font-size: .96rem;
+  font-weight: 900;
+}
+
+.character-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 112px;
+  margin: 8px 0;
+}
+
+.character-copy {
+  max-width: 180px;
+  padding: 9px 12px;
+  border: 2px solid #f0d6e5;
+  border-radius: 17px;
+  background: #fff;
+  font-size: .83rem;
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.character-copy strong {
+  color: var(--pink-dark);
+}
+
+/* CSS図形で描く主人公 */
+.character {
+  position: relative;
+  width: 92px;
+  height: 82px;
+  flex: 0 0 auto;
+  border: 4px solid #684f83;
+  border-radius: 53% 47% 48% 52% / 58% 57% 43% 42%;
+  background:
+    radial-gradient(circle at 34% 25%, rgba(255,255,255,.82) 0 8%, transparent 9%),
+    linear-gradient(145deg, #ffb7da, #ff70b4);
+  box-shadow:
+    inset -8px -8px 0 rgba(177,49,114,.12),
+    0 6px 0 rgba(96,69,120,.14);
+  animation: floaty 2.2s ease-in-out infinite;
+}
+
+.character::before,
+.character::after {
+  position: absolute;
+  top: 34px;
+  width: 13px;
+  height: 17px;
+  border-radius: 50%;
+  background: #493b62;
+  content: "";
+}
+
+.character::before {
+  left: 22px;
+}
+
+.character::after {
+  right: 22px;
+}
+
+.character .mouth {
+  position: absolute;
+  top: 57px;
+  left: 50%;
+  width: 19px;
+  height: 10px;
+  border: 3px solid #493b62;
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+  transform: translateX(-50%);
+}
+
+.character .cheek {
+  position: absolute;
+  top: 52px;
+  left: 9px;
+  width: 14px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,70,129,.4);
+  box-shadow: 56px 0 rgba(255,70,129,.4);
+}
+
+.character .sprout {
+  position: absolute;
+  top: -24px;
+  left: 45px;
+  width: 8px;
+  height: 26px;
+  border-radius: 8px;
+  background: #60c98b;
+  transform: rotate(8deg);
+}
+
+.character .sprout::after {
+  position: absolute;
+  top: 0;
+  left: 2px;
+  width: 22px;
+  height: 13px;
+  border: 3px solid #4ba873;
+  border-radius: 90% 15% 90% 15%;
+  background: #8be0a5;
+  content: "";
+  transform: rotate(-24deg);
+  transform-origin: left center;
+}
+
+.character.combo {
+  animation: comboJump .52s ease-in-out 2;
+  background:
+    radial-gradient(circle at 34% 25%, rgba(255,255,255,.9) 0 8%, transparent 9%),
+    linear-gradient(145deg, #ffdc69, #ff76b7);
+}
+
+.character.combo .mouth {
+  height: 16px;
+  border-top: 3px solid #493b62;
+  border-radius: 50%;
+  background: #a83f72;
+}
+
+.character.urgent {
+  animation: urgentShake .32s linear infinite;
+}
+
+.character.urgent::before,
+.character.urgent::after {
+  height: 7px;
+  border-radius: 8px;
+}
+
+.character.urgent .mouth {
+  width: 13px;
+  height: 13px;
+  border: 3px solid #493b62;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.character.ended {
+  animation: none;
+  filter: grayscale(.25);
+  transform: rotate(-5deg);
+}
+
+.character.ended::before,
+.character.ended::after {
+  width: 15px;
+  height: 3px;
+  border-radius: 4px;
+  transform: rotate(25deg);
+}
+
+.character.ended::after {
+  transform: rotate(-25deg);
+}
+
+.character.ended .mouth {
+  height: 8px;
+  border-top: 3px solid #493b62;
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-6px) rotate(1deg); }
+}
+
+@keyframes comboJump {
+  0%, 100% { transform: translateY(0) scale(1); }
+  45% { transform: translateY(-16px) scale(1.08); }
+}
+
+@keyframes urgentShake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-2px) rotate(-2deg); }
+  75% { transform: translateX(2px) rotate(2deg); }
+}
+
+.difficulty-wrap {
+  margin: 8px 0 12px;
+}
+
+.section-label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: .9rem;
+  font-weight: 900;
+}
+
+.difficulty-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.difficulty-button {
+  min-height: 57px;
+  padding: 6px 3px;
+  border: 3px solid transparent;
+  border-radius: 17px;
+  background: #f3edf8;
+  color: var(--ink);
+  font-size: .78rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.difficulty-button span {
+  display: block;
+  margin-top: 2px;
+  font-size: .66rem;
+  font-weight: 700;
+}
+
+.difficulty-button.selected {
+  border-color: #ff67a7;
+  background: #fff0f7;
+  box-shadow: 0 4px 0 rgba(255,103,167,.2);
+  transform: translateY(-2px);
+}
+
+.title-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.title-actions .primary {
+  grid-column: 1 / -1;
+  font-size: 1.12rem;
+}
+
+/* ゲーム画面 */
+#gameScreen {
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.top-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr .9fr;
+  gap: 5px;
+  width: min(98vw, 520px);
+}
+
+.stat {
+  min-width: 0;
+  padding: 5px 6px;
+  border-radius: 15px;
+  background: rgba(255,255,255,.9);
+  box-shadow: 0 4px 0 rgba(89,68,117,.12);
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  color: #756985;
+  font-size: clamp(.63rem, 2.7vw, .75rem);
+  font-weight: 800;
+}
+
+.stat-value {
+  display: block;
+  overflow: hidden;
+  font-size: clamp(1rem, 5vw, 1.35rem);
+  font-weight: 1000;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timer-stat.warning {
+  color: #d95a00;
+  background: #fff0ad;
+}
+
+.timer-stat.danger {
+  color: #fff;
+  background: var(--danger);
+  animation: timerPulse .5s ease-in-out infinite alternate;
+}
+
+@keyframes timerPulse {
+  to { transform: scale(1.035); filter: brightness(1.1); }
+}
+
+.game-middle {
+  display: grid;
+  grid-template-columns: 67px 1fr;
+  align-items: center;
+  gap: 7px;
+  width: min(98vw, 520px);
+  min-height: 64px;
+}
+
+.game-character {
+  transform: scale(.64);
+  transform-origin: center;
+  margin: -10px;
+}
+
+.message-box {
+  min-height: 50px;
+  padding: 7px 10px;
+  border: 2px solid rgba(255,255,255,.9);
+  border-radius: 16px;
+  background: rgba(255,255,255,.88);
+  font-size: clamp(.72rem, 3vw, .9rem);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.combo-line {
+  color: #e8458f;
+  font-size: 1rem;
+  font-weight: 1000;
+}
+
+.board-shell {
+  position: relative;
+  width: var(--board-size);
+  height: var(--board-size);
+  max-width: 100%;
+  max-height: 100%;
+  flex: 0 0 auto;
+  padding: 5px;
+  border: 3px solid rgba(255,255,255,.9);
+  border-radius: 22px;
+  background: rgba(95,73,127,.18);
+  box-shadow:
+    0 7px 0 rgba(84,63,112,.17),
+    0 12px 30px rgba(82,62,112,.12);
+}
+
+#board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  background:
+    linear-gradient(45deg, rgba(255,255,255,.18) 25%, transparent 25%) 0 0 / 24px 24px,
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,.15) 75%) 0 0 / 24px 24px,
+    #9a85bd;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+#connectionCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.piece {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  transition:
+    left .22s ease,
+    top .22s ease,
+    transform .14s ease,
+    opacity .18s ease;
+  will-change: left, top, transform, opacity;
+}
+
+.piece-inner {
+  position: relative;
+  display: grid;
+  width: 88%;
+  height: 88%;
+  place-items: center;
+  border: 3px solid rgba(74,57,96,.5);
+  box-shadow:
+    inset 0 4px rgba(255,255,255,.5),
+    inset 0 -5px rgba(66,44,91,.12),
+    0 4px 0 rgba(56,42,77,.16);
+  color: #fff;
+  font-size: clamp(15px, 5vw, 30px);
+  font-weight: 1000;
+  line-height: 1;
+  text-shadow: 0 2px rgba(65,45,80,.25);
+}
+
+.piece.selected {
+  z-index: 5;
+  transform: scale(1.12);
+  filter: brightness(1.12) drop-shadow(0 0 7px #fff);
+}
+
+.piece.hint {
+  z-index: 4;
+  animation: hintBlink .65s ease-in-out infinite alternate;
+}
+
+.piece.removing {
+  z-index: 7;
+  pointer-events: none;
+  animation: popRemove .28s ease-out forwards;
+}
+
+.piece.special-flash {
+  z-index: 8;
+  animation: specialFlash .42s ease-out;
+}
+
+@keyframes hintBlink {
+  to {
+    transform: scale(1.09);
+    filter: brightness(1.15) drop-shadow(0 0 7px #fff);
+  }
+}
+
+@keyframes popRemove {
+  30% { transform: scale(1.2) rotate(7deg); }
+  100% { transform: scale(.05) rotate(-18deg); opacity: 0; }
+}
+
+@keyframes specialFlash {
+  50% { transform: scale(1.38); filter: brightness(1.5) drop-shadow(0 0 12px #fff); }
+}
+
+.type-0 .piece-inner {
+  background: linear-gradient(145deg, #ff92bc, #f44d91);
+  border-radius: 50%;
+}
+
+.type-0 .piece-inner::after {
+  content: "●";
+  font-size: .45em;
+}
+
+.type-1 .piece-inner {
+  background: linear-gradient(145deg, #84ddff, #3e9fe2);
+  border-radius: 28% 55% 34% 60%;
+  transform: rotate(4deg);
+}
+
+.type-1 .piece-inner::after {
+  content: "◆";
+}
+
+.type-2 .piece-inner {
+  background: linear-gradient(145deg, #ffe97d, #ffb82d);
+  border-radius: 25%;
+  clip-path: polygon(50% 0%, 63% 33%, 98% 35%, 71% 57%, 80% 95%, 50% 73%, 20% 95%, 29% 57%, 2% 35%, 37% 33%);
+}
+
+.type-2 .piece-inner::after {
+  content: "★";
+  font-size: .68em;
+}
+
+.type-3 .piece-inner {
+  background: linear-gradient(145deg, #9de69e, #47bd72);
+  border-radius: 55% 22% 55% 22%;
+  transform: rotate(-5deg);
+}
+
+.type-3 .piece-inner::after {
+  content: "＋";
+}
+
+.type-4 .piece-inner {
+  background: linear-gradient(145deg, #c2a2ff, #825bd9);
+  border-radius: 45% 45% 30% 30%;
+}
+
+.type-4 .piece-inner::after {
+  content: "♥";
+}
+
+.type-5 .piece-inner {
+  background: linear-gradient(145deg, #ffad78, #ef6b38);
+  border-radius: 50% 25% 50% 25%;
+}
+
+.type-5 .piece-inner::after {
+  content: "▲";
+}
+
+.type-6 .piece-inner {
+  background: linear-gradient(145deg, #78e5d4, #26a99d);
+  border-radius: 30% 60% 30% 60%;
+}
+
+.type-6 .piece-inner::after {
+  content: "☘";
+  font-size: .74em;
+}
+
+.piece.bomb .piece-inner {
+  overflow: hidden;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 32%, #fff 0 8%, transparent 9%),
+    radial-gradient(circle, #5f536d 0 53%, #30283d 54% 100%);
+  border-color: #fff;
+}
+
+.piece.bomb .piece-inner::after {
+  content: "✹";
+  color: #ffe66f;
+  font-size: .9em;
+}
+
+.piece.rainbow .piece-inner {
+  border-radius: 50%;
+  border-color: #fff;
+  background:
+    conic-gradient(
+      #ff649f,
+      #ffce56,
+      #68d990,
+      #58bfff,
+      #9d75ea,
+      #ff649f
+    );
+  animation: rainbowSpin 2s linear infinite;
+}
+
+.piece.rainbow .piece-inner::after {
+  content: "✦";
+  color: #fff;
+  font-size: .9em;
+}
+
+@keyframes rainbowSpin {
+  to { transform: rotate(360deg); }
+}
+
+.game-controls {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 6px;
+  width: min(98vw, 520px);
+}
+
+#shuffleButton {
+  background: linear-gradient(180deg, #c3f2e5, #76dfc4);
+}
+
+.status-note {
+  width: min(98vw, 520px);
+  min-height: 18px;
+  color: #5f5273;
+  font-size: clamp(.66rem, 2.7vw, .78rem);
+  font-weight: 800;
+  text-align: center;
+}
+
+/* 獲得点アニメーション */
+.floating-score {
+  position: fixed;
+  z-index: 100;
+  left: 50%;
+  top: 37%;
+  color: #fff;
+  font-size: clamp(1.7rem, 9vw, 3.4rem);
+  font-weight: 1000;
+  pointer-events: none;
+  text-align: center;
+  text-shadow:
+    0 3px 0 #dc4389,
+    0 0 12px #ffea83;
+  transform: translate(-50%, -50%);
+  animation: scoreFloat .9s ease-out forwards;
+}
+
+@keyframes scoreFloat {
+  0% { opacity: 0; transform: translate(-50%, -30%) scale(.6); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -120%) scale(.9); }
+}
+
+/* モーダル */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding:
+    max(18px, env(safe-area-inset-top))
+    14px
+    max(18px, env(safe-area-inset-bottom));
+  background: rgba(57,42,78,.62);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.modal.open {
+  display: flex;
+}
+
+.modal-card {
+  width: min(92vw, 460px);
+  max-height: 90dvh;
+  padding: 22px;
+  overflow-y: auto;
+  border: 3px solid #fff;
+  border-radius: 27px;
+  background: #fffafc;
+  box-shadow: 0 12px 0 rgba(45,32,63,.18);
+  text-align: center;
+}
+
+.modal-card h2 {
+  margin: 0 0 12px;
+  color: #e84d91;
+  font-size: 1.65rem;
+}
+
+.howto-list {
+  padding-left: 1.4em;
+  text-align: left;
+  line-height: 1.65;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.result-item {
+  padding: 10px 5px;
+  border-radius: 15px;
+  background: #f3edf8;
+}
+
+.result-item strong {
+  display: block;
+  color: #e4478c;
+  font-size: 1.35rem;
+}
+
+.modal-actions {
+  display: grid;
+  gap: 9px;
+}
+
+/* 一時停止 */
+#pauseOverlay .modal-card {
+  max-width: 350px;
+}
+
+.pause-icon {
+  margin: 5px 0 12px;
+  font-size: 3rem;
+}
+
+/* 横画面案内 */
+#orientationOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(145deg, #fff0a9, #ffd6e8);
+  text-align: center;
+}
+
+.orientation-card {
+  max-width: 360px;
+  padding: 25px;
+  border-radius: 25px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.phone-icon {
+  display: inline-grid;
+  width: 52px;
+  height: 84px;
+  margin-bottom: 13px;
+  place-items: center;
+  border: 5px solid var(--ink);
+  border-radius: 11px;
+  font-size: 1.5rem;
+  animation: rotatePhone 1.4s ease-in-out infinite;
+}
+
+@keyframes rotatePhone {
+  50% { transform: rotate(-90deg); }
+}
+
+.flash-screen::after {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(255,255,255,.72);
+  content: "";
+  pointer-events: none;
+  animation: screenFlash .32s ease-out forwards;
+}
+
+@keyframes screenFlash {
+  to { opacity: 0; }
+}
+
+.shake-screen {
+  animation: screenShake .25s linear;
+}
+
+@keyframes screenShake {
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  #orientationOverlay {
+    display: flex;
+  }
+}
+
+@media (max-width: 360px) {
+  :root {
+    --board-size: min(96vw, 55dvh);
+  }
+
+  .screen {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .title-card {
+    padding: 13px;
+  }
+
+  .game-middle {
+    grid-template-columns: 59px 1fr;
+    min-height: 57px;
+  }
+
+  .game-character {
+    transform: scale(.57);
+  }
+
+  .pop-button.small {
+    padding: 6px 7px;
+    font-size: .76rem;
+  }
+
+  .board-shell {
+    padding: 4px;
+    border-radius: 17px;
+  }
+
+  .piece {
+    padding: 2px;
+  }
+
+  .piece-inner {
+    border-width: 2px;
+  }
+}
+
+@media (max-height: 670px) and (orientation: portrait) {
+  :root {
+    --board-size: min(92vw, 52dvh);
+  }
+
+  #gameScreen {
+    gap: 3px;
+  }
+
+  .game-middle {
+    min-height: 48px;
+  }
+
+  .message-box {
+    min-height: 42px;
+    padding: 5px 8px;
+  }
+
+  .game-controls .pop-button {
+    min-height: 38px;
+  }
+
+  .status-note {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+/* AIゲームランドへ戻るボタン */
+.ai-land-back-button {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 12px;
+  z-index: 10000;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+  padding: 9px 16px;
+
+  color: #ffffff;
+  background: rgba(69, 59, 98, 0.92);
+
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+
+  box-shadow:
+    0 4px 12px rgba(69, 59, 98, 0.28);
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Yu Gothic",
+    Meiryo,
+    sans-serif;
+
+  font-size: 14px;
+  font-weight: 900;
+
+  text-decoration: none;
+  white-space: nowrap;
+
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.ai-land-back-button:active {
+  transform: scale(0.96);
+}
+</style>
+</head>
+
+<body>
+
+<a
+  href="index.html"
+  class="ai-land-back-button"
+  aria-label="AIゲームランドにもどる"
+>
+  ← もどる
+</a>
+
+<div class="bg-decoration" aria-hidden="true"></div>
+
+<!-- タイトル画面 -->
+<section id="titleScreen" class="screen active" aria-labelledby="gameTitle">
+  <div class="title-card panel">
+    <h1 id="gameTitle" class="logo">ぷにリンク！</h1>
+    <p class="logo-sub">つないで、はじけて、ハイスコア！</p>
+
+    <div class="character-area">
+      <div class="character" id="titleCharacter" aria-label="主人公のぷるん">
+        <span class="sprout"></span>
+        <span class="cheek"></span>
+        <span class="mouth"></span>
+      </div>
+      <div class="character-copy">
+        <strong>ぷるん</strong><br>
+        空から落ちてきた、甘い光が大好きな「ぷに星」の旅人。
+      </div>
+    </div>
+
+    <div class="difficulty-wrap">
+      <span class="section-label">難易度をえらんでね</span>
+      <div class="difficulty-buttons" role="radiogroup" aria-label="難易度選択">
+        <button class="difficulty-button selected"
+                type="button"
+                data-difficulty="easy"
+                role="radio"
+                aria-checked="true">
+          かんたん
+          <span>6×6・3個から</span>
+        </button>
+        <button class="difficulty-button"
+                type="button"
+                data-difficulty="normal"
+                role="radio"
+                aria-checked="false">
+          ふつう
+          <span>7×7・4個から</span>
+        </button>
+        <button class="difficulty-button"
+                type="button"
+                data-difficulty="hard"
+                role="radio"
+                aria-checked="false">
+          むずかしい
+          <span>8×8・5個から</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="title-actions">
+      <button id="howToButton" class="pop-button blue" type="button" aria-label="遊び方を表示">
+        遊び方
+      </button>
+      <button id="titleSoundButton" class="pop-button secondary" type="button" aria-label="サウンドを切り替え">
+        🔊 サウンドON
+      </button>
+      <button id="startButton" class="pop-button primary" type="button" aria-label="ゲームを開始">
+        ゲームスタート！
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ゲーム画面 -->
+<section id="gameScreen" class="screen" aria-label="ゲーム画面">
+  <div class="top-bar" aria-live="polite">
+    <div class="stat">
+      <span class="stat-label">スコア</span>
+      <span id="scoreValue" class="stat-value">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">ハイスコア</span>
+      <span id="highScoreValue" class="stat-value">0</span>
+    </div>
+    <div id="timerStat" class="stat timer-stat">
+      <span class="stat-label">のこり</span>
+      <span id="timeValue" class="stat-value">120秒</span>
+    </div>
+  </div>
+
+  <div class="game-middle">
+    <div id="gameCharacter" class="character game-character" aria-label="主人公のぷるん">
+      <span class="sprout"></span>
+      <span class="cheek"></span>
+      <span class="mouth"></span>
+    </div>
+    <div id="messageBox" class="message-box" aria-live="polite">
+      同じ絵柄をつないでね！
+      <div id="comboDisplay" class="combo-line">コンボ 0</div>
+    </div>
+  </div>
+
+  <div class="board-shell">
+    <div id="board"
+         role="application"
+         aria-label="パズル盤面。同じ絵柄を指でなぞってつなげます">
+      <canvas id="connectionCanvas" aria-hidden="true"></canvas>
+    </div>
+  </div>
+
+  <div class="game-controls">
+    <button id="shuffleButton" class="pop-button small" type="button" aria-label="盤面をシャッフル">
+      🔀 シャッフル
+    </button>
+    <button id="pauseButton" class="pop-button small blue" type="button" aria-label="ゲームを一時停止">
+      ⏸ 一時停止
+    </button>
+    <button id="gameSoundButton" class="pop-button small secondary" type="button" aria-label="サウンドを切り替え">
+      🔊 ON
+    </button>
+  </div>
+
+  <div id="statusNote" class="status-note">
+    ピースをなぞり、必要数以上つないで指を離そう
+  </div>
+  <div id="liveRegion" class="sr-only" aria-live="assertive"></div>
+</section>
+
+<!-- 遊び方 -->
+<div id="howToModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="howToTitle">
+  <div class="modal-card">
+    <h2 id="howToTitle">遊び方</h2>
+    <ul class="howto-list">
+      <li>同じ絵柄を、縦・横・斜めになぞってつなぎます。</li>
+      <li>必要数以上つないで指を離すと消えます。</li>
+      <li>6個以上でボム、9個以上でレインボーが出現します。</li>
+      <li>ボムはタップすると周囲のピースを消します。</li>
+      <li>レインボーから隣の通常ピースへなぞると、同じ種類をすべて消します。</li>
+      <li>短い間に続けて消すとコンボになります。</li>
+      <li>制限時間は全難易度120秒です。</li>
+    </ul>
+    <button id="closeHowToButton" class="pop-button primary" type="button" aria-label="遊び方を閉じる">
+      わかった！
+    </button>
+  </div>
+</div>
+
+<!-- 一時停止 -->
+<div id="pauseOverlay" class="modal" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+  <div class="modal-card">
+    <div class="pause-icon" aria-hidden="true">⏸</div>
+    <h2 id="pauseTitle">ひとやすみ</h2>
+    <p>ゲームとタイマーは停止しています。</p>
+    <button id="resumeButton" class="pop-button primary" type="button" aria-label="ゲームを再開">
+      ゲームを再開
+    </button>
+  </div>
+</div>
+
+<!-- ゲームオーバー -->
+<div id="gameOverModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
+  <div class="modal-card">
+    <div class="character ended" id="endCharacter" style="margin:0 auto 10px" aria-label="ゲーム終了時のぷるん">
+      <span class="sprout"></span>
+      <span class="cheek"></span>
+      <span class="mouth"></span>
+    </div>
+    <h2 id="gameOverTitle">タイムアップ！</h2>
+
+    <div class="result-grid">
+      <div class="result-item">最終スコア<strong id="resultScore">0</strong></div>
+      <div class="result-item">ハイスコア<strong id="resultHighScore">0</strong></div>
+      <div class="result-item">消した数<strong id="resultRemoved">0</strong></div>
+      <div class="result-item">最大コンボ<strong id="resultCombo">0</strong></div>
+      <div class="result-item" style="grid-column:1/-1">
+        難易度<strong id="resultDifficulty">かんたん</strong>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="retryButton" class="pop-button primary" type="button" aria-label="同じ難易度でもう一度遊ぶ">
+        もう一度遊ぶ
+      </button>
+      <button id="backTitleButton" class="pop-button secondary" type="button" aria-label="タイトル画面へ戻る">
+        タイトルへ戻る
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 横画面案内 -->
+<div id="orientationOverlay" aria-live="polite">
+  <div class="orientation-card">
+    <div class="phone-icon" aria-hidden="true">↻</div>
+    <h2>端末を縦向きにしてください</h2>
+    <p>「ぷにリンク！」は縦画面で遊びやすく作られています。</p>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+(() => {
+  /* =========================================================
+     基本設定
+  ========================================================= */
+  const GAME_TIME = 120;
+  const COMBO_LIMIT_MS = 3200;
+  const HINT_IDLE_MS = 5500;
+  const SPECIAL_BOMB = "bomb";
+  const SPECIAL_RAINBOW = "rainbow";
+
+  const settings = {
+    easy: {
+      label: "かんたん",
+      size: 6,
+      types: 5,
+      minimum: 3,
+      hintDelay: 4200
+    },
+    normal: {
+      label: "ふつう",
+      size: 7,
+      types: 6,
+      minimum: 4,
+      hintDelay: 6200
+    },
+    hard: {
+      label: "むずかしい",
+      size: 8,
+      types: 7,
+      minimum: 5,
+      hintDelay: 8500
+    }
+  };
+
+  const typeNames = [
+    "ももまる",
+    "そらしずく",
+    "きらぼし",
+    "わかば",
+    "むらさきハート",
+    "おひさま",
+    "ミントクローバー"
+  ];
+
+  const titleScreen = document.getElementById("titleScreen");
+  const gameScreen = document.getElementById("gameScreen");
+  const boardElement = document.getElementById("board");
+  const canvas = document.getElementById("connectionCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const scoreValue = document.getElementById("scoreValue");
+  const highScoreValue = document.getElementById("highScoreValue");
+  const timeValue = document.getElementById("timeValue");
+  const timerStat = document.getElementById("timerStat");
+  const comboDisplay = document.getElementById("comboDisplay");
+  const messageBox = document.getElementById("messageBox");
+  const statusNote = document.getElementById("statusNote");
+  const liveRegion = document.getElementById("liveRegion");
+  const gameCharacter = document.getElementById("gameCharacter");
+
+  const startButton = document.getElementById("startButton");
+  const retryButton = document.getElementById("retryButton");
+  const backTitleButton = document.getElementById("backTitleButton");
+  const pauseButton = document.getElementById("pauseButton");
+  const resumeButton = document.getElementById("resumeButton");
+  const shuffleButton = document.getElementById("shuffleButton");
+  const howToButton = document.getElementById("howToButton");
+  const closeHowToButton = document.getElementById("closeHowToButton");
+  const titleSoundButton = document.getElementById("titleSoundButton");
+  const gameSoundButton = document.getElementById("gameSoundButton");
+
+  const howToModal = document.getElementById("howToModal");
+  const pauseOverlay = document.getElementById("pauseOverlay");
+  const gameOverModal = document.getElementById("gameOverModal");
+
+  let difficulty = "easy";
+  let config = settings[difficulty];
+  let board = [];
+
+  let score = 0;
+  let highScore = getStoredHighScore();
+  let timeLeft = GAME_TIME;
+  let totalRemoved = 0;
+  let combo = 0;
+  let bestCombo = 0;
+  let lastClearTime = 0;
+
+  let gameRunning = false;
+  let paused = false;
+  let processing = false;
+  let selecting = false;
+  let selection = [];
+  let rainbowTargetType = null;
+  let currentPointerId = null;
+  let pointerPosition = null;
+
+  let timerId = null;
+  let lastTickTime = 0;
+  let idleTimerId = null;
+  let characterTimerId = null;
+  let warningSoundSecond = -1;
+
+  let audioContext = null;
+  let soundEnabled = true;
+
+  /* =========================================================
+     localStorage
+  ========================================================= */
+  function getStoredHighScore() {
+    try {
+      const value = Number(localStorage.getItem("puniLinkHighScore"));
+      return Number.isFinite(value) ? value : 0;
+    } catch (error) {
+      return 0;
+    }
+  }
+
+  function saveHighScore() {
+    try {
+      localStorage.setItem("puniLinkHighScore", String(highScore));
+    } catch (error) {
+      /* 保存できない環境ではゲーム進行を優先する */
+    }
+  }
+
+  /* =========================================================
+     Web Audio APIによる効果音
+  ========================================================= */
+  function prepareAudio() {
+    if (!soundEnabled) return;
+
+    try {
+      if (!audioContext) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioClass) audioContext = new AudioClass();
+      }
+
+      if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume().catch(() => {});
+      }
+    } catch (error) {
+      audioContext = null;
+    }
+  }
+
+  function tone(frequency, duration, type = "sine", volume = 0.035, delay = 0) {
+    if (!soundEnabled || !audioContext) return;
+
+    const start = audioContext.currentTime + delay;
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(volume, start + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(start);
+    oscillator.stop(start + duration + 0.025);
+  }
+
+  function playSound(name) {
+    if (!soundEnabled) return;
+    prepareAudio();
+    if (!audioContext) return;
+
+    switch (name) {
+      case "start":
+        tone(440, .11, "sine", .035);
+        tone(660, .12, "sine", .035, .08);
+        tone(880, .17, "triangle", .04, .16);
+        break;
+      case "select":
+        tone(440 + Math.min(selection.length, 8) * 35, .055, "sine", .018);
+        break;
+      case "remove":
+        tone(580, .08, "triangle", .035);
+        tone(760, .12, "sine", .03, .055);
+        break;
+      case "combo":
+        tone(690, .08, "square", .023);
+        tone(920, .1, "triangle", .035, .06);
+        break;
+      case "special":
+        tone(300, .09, "sawtooth", .028);
+        tone(600, .13, "triangle", .04, .07);
+        tone(980, .18, "sine", .04, .15);
+        break;
+      case "warning":
+        tone(820, .075, "square", .018);
+        break;
+      case "end":
+        tone(520, .14, "sine", .035);
+        tone(390, .16, "triangle", .035, .12);
+        tone(260, .24, "sine", .035, .25);
+        break;
+    }
+  }
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    prepareAudio();
+    updateSoundButtons();
+
+    if (soundEnabled) {
+      tone(640, .08, "sine", .025);
+    }
+  }
+
+  function updateSoundButtons() {
+    titleSoundButton.textContent = soundEnabled ? "🔊 サウンドON" : "🔇 サウンドOFF";
+    gameSoundButton.textContent = soundEnabled ? "🔊 ON" : "🔇 OFF";
+    titleSoundButton.setAttribute(
+      "aria-label",
+      soundEnabled ? "サウンドをオフにする" : "サウンドをオンにする"
+    );
+    gameSoundButton.setAttribute(
+      "aria-label",
+      soundEnabled ? "サウンドをオフにする" : "サウンドをオンにする"
+    );
+  }
+
+  /* =========================================================
+     盤面データ作成
+  ========================================================= */
+  function createNormalPiece(row, col, type = randomType()) {
+    return {
+      id: createId(),
+      row,
+      col,
+      type,
+      special: null,
+      element: null
+    };
+  }
+
+  function createId() {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  }
+
+  function randomType() {
+    return Math.floor(Math.random() * config.types);
+  }
+
+  function generatePlayableBoard() {
+    let attempts = 0;
+
+    do {
+      board = [];
+      for (let row = 0; row < config.size; row++) {
+        const line = [];
+        for (let col = 0; col < config.size; col++) {
+          line.push(createNormalPiece(row, col));
+        }
+        board.push(line);
+      }
+      attempts++;
+    } while (!findHintPath() && attempts < 80);
+
+    /* 万一ランダム生成で見つからない場合は確実な並びを作る */
+    if (!findHintPath()) {
+      const type = randomType();
+      for (let index = 0; index < config.minimum; index++) {
+        const row = Math.floor(index / config.size);
+        const col = index % config.size;
+        board[row][col].type = type;
+      }
+    }
+  }
+
+  /* =========================================================
+     盤面描画
+  ========================================================= */
+  function renderBoard(animateDrop = false) {
+    boardElement.querySelectorAll(".piece").forEach(element => element.remove());
+
+    const size = config.size;
+    const cellPercent = 100 / size;
+
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        const piece = board[row][col];
+        if (!piece) continue;
+
+        const element = document.createElement("div");
+        element.className = getPieceClass(piece);
+        element.dataset.row = String(row);
+        element.dataset.col = String(col);
+        element.dataset.id = piece.id;
+        element.style.width = `${cellPercent}%`;
+        element.style.height = `${cellPercent}%`;
+        element.style.left = `${col * cellPercent}%`;
+        element.style.top = `${row * cellPercent}%`;
+
+        if (animateDrop) {
+          element.style.transform = "translateY(-30px)";
+          element.style.opacity = "0";
+          requestAnimationFrame(() => {
+            element.style.transform = "";
+            element.style.opacity = "1";
+          });
+        }
+
+        const inner = document.createElement("div");
+        inner.className = "piece-inner";
+        element.appendChild(inner);
+
+        const label = getPieceLabel(piece);
+        element.setAttribute("aria-label", label);
+        piece.element = element;
+        boardElement.appendChild(element);
+      }
+    }
+
+    resizeCanvas();
+  }
+
+  function getPieceClass(piece) {
+    let className = `piece type-${piece.type}`;
+    if (piece.special === SPECIAL_BOMB) className += " bomb";
+    if (piece.special === SPECIAL_RAINBOW) className += " rainbow";
+    return className;
+  }
+
+  function getPieceLabel(piece) {
+    if (piece.special === SPECIAL_BOMB) return "ボムピース";
+    if (piece.special === SPECIAL_RAINBOW) return "レインボーピース";
+    return typeNames[piece.type];
+  }
+
+  function updatePiecePositions() {
+    const cellPercent = 100 / config.size;
+
+    for (let row = 0; row < config.size; row++) {
+      for (let col = 0; col < config.size; col++) {
+        const piece = board[row][col];
+        if (!piece || !piece.element) continue;
+
+        piece.row = row;
+        piece.col = col;
+        piece.element.dataset.row = String(row);
+        piece.element.dataset.col = String(col);
+        piece.element.style.left = `${col * cellPercent}%`;
+        piece.element.style.top = `${row * cellPercent}%`;
+      }
+    }
+  }
+
+  function resizeCanvas() {
+    const rect = boardElement.getBoundingClientRect();
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+    canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    drawConnection();
+  }
+
+  /* =========================================================
+     選択線の描画
+  ========================================================= */
+  function getPieceCenter(piece) {
+    const rect = boardElement.getBoundingClientRect();
+    const cell = rect.width / config.size;
+
+    return {
+      x: piece.col * cell + cell / 2,
+      y: piece.row * cell + cell / 2
+    };
+  }
+
+  function drawConnection() {
+    const rect = boardElement.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
+
+    if (!selection.length) return;
+
+    const points = selection.map(getPieceCenter);
+
+    if (pointerPosition && selecting) {
+      points.push(pointerPosition);
+    }
+
+    if (points.length < 2) return;
+
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+
+    ctx.strokeStyle = "rgba(255,255,255,.92)";
+    ctx.lineWidth = Math.max(8, rect.width / config.size * .22);
+    ctx.shadowColor = "#fff071";
+    ctx.shadowBlur = 12;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+
+    ctx.strokeStyle = "rgba(255,91,166,.85)";
+    ctx.lineWidth = Math.max(3, rect.width / config.size * .08);
+    ctx.shadowBlur = 0;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /* =========================================================
+     Pointer Eventsによる統一操作
+  ========================================================= */
+  function onPointerDown(event) {
+    if (!canOperate()) return;
+
+    prepareAudio();
+    clearHint();
+    resetIdleTimer();
+
+    const piece = getPieceFromPointer(event);
+    if (!piece) return;
+
+    event.preventDefault();
+    currentPointerId = event.pointerId;
+    boardElement.setPointerCapture?.(event.pointerId);
+
+    /* ボムは単独タップで即時発動 */
+    if (piece.special === SPECIAL_BOMB) {
+      activateBomb(piece);
+      return;
+    }
+
+    selecting = true;
+    selection = [piece];
+    rainbowTargetType = null;
+    pointerPosition = localPointer(event);
+    piece.element?.classList.add("selected");
+    playSound("select");
+    updateSelectionMessage();
+    drawConnection();
+  }
+
+  function onPointerMove(event) {
+    if (
+      !selecting ||
+      currentPointerId !== event.pointerId ||
+      !canOperate()
+    ) return;
+
+    event.preventDefault();
+    pointerPosition = localPointer(event);
+
+    const piece = getPieceFromPointer(event);
+    if (!piece) {
+      drawConnection();
+      return;
+    }
+
+    const previous = selection[selection.length - 1];
+    if (!previous || piece.id === previous.id) {
+      drawConnection();
+      return;
+    }
+
+    /* ひとつ前へ戻った場合は選択を取り消して戻れる */
+    if (
+      selection.length >= 2 &&
+      piece.id === selection[selection.length - 2].id
+    ) {
+      const removed = selection.pop();
+      removed.element?.classList.remove("selected");
+      if (selection[0]?.special === SPECIAL_RAINBOW) {
+        rainbowTargetType = null;
+      }
+      updateSelectionMessage();
+      drawConnection();
+      return;
+    }
+
+    if (!areAdjacent(previous, piece)) {
+      drawConnection();
+      return;
+    }
+
+    if (selection.some(selected => selected.id === piece.id)) {
+      drawConnection();
+      return;
+    }
+
+    const first = selection[0];
+
+    /* レインボーは隣接する通常ピースを対象として使用 */
+    if (first.special === SPECIAL_RAINBOW) {
+      if (selection.length === 1 && !piece.special) {
+        selection.push(piece);
+        rainbowTargetType = piece.type;
+        piece.element?.classList.add("selected");
+        playSound("select");
+        updateSelectionMessage();
+      }
+      drawConnection();
+      return;
+    }
+
+    /* 通常の連結ではスペシャルを経由させない */
+    if (piece.special) {
+      drawConnection();
+      return;
+    }
+
+    if (piece.type !== first.type) {
+      drawConnection();
+      return;
+    }
+
+    selection.push(piece);
+    piece.element?.classList.add("selected");
+    playSound("select");
+    updateSelectionMessage();
+    drawConnection();
+  }
+
+  function onPointerUp(event) {
+    if (currentPointerId !== null && event.pointerId !== currentPointerId) return;
+
+    event.preventDefault();
+    boardElement.releasePointerCapture?.(event.pointerId);
+
+    if (!selecting) {
+      currentPointerId = null;
+      return;
+    }
+
+    const chosen = [...selection];
+    const first = chosen[0];
+    const rainbowType = rainbowTargetType;
+
+    clearSelectionVisuals();
+    selecting = false;
+    currentPointerId = null;
+    pointerPosition = null;
+    selection = [];
+    rainbowTargetType = null;
+    drawConnection();
+
+    if (!first || !canOperate()) return;
+
+    if (
+      first.special === SPECIAL_RAINBOW &&
+      rainbowType !== null &&
+      chosen.length === 2
+    ) {
+      activateRainbow(first, rainbowType);
+      return;
+    }
+
+    if (chosen.length >= config.minimum) {
+      resolveNormalClear(chosen);
+    } else {
+      showMessage(`あと${Math.max(0, config.minimum - chosen.length)}個つなげよう！`);
+      announce("必要な個数に足りないため、盤面は変わりませんでした");
+      resetIdleTimer();
+    }
+  }
+
+  function onPointerCancel(event) {
+    if (event.pointerId !== currentPointerId) return;
+    cancelSelection();
+  }
+
+  function getPieceFromPointer(event) {
+    const element = document.elementFromPoint(event.clientX, event.clientY);
+    const pieceElement = element?.closest?.(".piece");
+    if (!pieceElement || !boardElement.contains(pieceElement)) return null;
+
+    const row = Number(pieceElement.dataset.row);
+    const col = Number(pieceElement.dataset.col);
+
+    if (
+      !Number.isInteger(row) ||
+      !Number.isInteger(col) ||
+      !board[row] ||
+      !board[row][col]
+    ) return null;
+
+    return board[row][col];
+  }
+
+  function localPointer(event) {
+    const rect = boardElement.getBoundingClientRect();
+    return {
+      x: Math.max(0, Math.min(rect.width, event.clientX - rect.left)),
+      y: Math.max(0, Math.min(rect.height, event.clientY - rect.top))
+    };
+  }
+
+  function areAdjacent(a, b) {
+    const rowDifference = Math.abs(a.row - b.row);
+    const colDifference = Math.abs(a.col - b.col);
+    return (
+      rowDifference <= 1 &&
+      colDifference <= 1 &&
+      rowDifference + colDifference > 0
+    );
+  }
+
+  function clearSelectionVisuals() {
+    selection.forEach(piece => piece.element?.classList.remove("selected"));
+  }
+
+  function cancelSelection() {
+    clearSelectionVisuals();
+    selecting = false;
+    currentPointerId = null;
+    selection = [];
+    rainbowTargetType = null;
+    pointerPosition = null;
+    drawConnection();
+  }
+
+  function canOperate() {
+    return gameRunning && !paused && !processing;
+  }
+
+  function updateSelectionMessage() {
+    const first = selection[0];
+
+    if (first?.special === SPECIAL_RAINBOW) {
+      if (rainbowTargetType === null) {
+        showMessage("隣の通常ピースへなぞろう！");
+      } else {
+        showMessage(`${typeNames[rainbowTargetType]}を全部消すよ！`);
+      }
+      return;
+    }
+
+    const count = selection.length;
+    const valid = count >= config.minimum;
+    const text = valid
+      ? `${count}個！ 指を離して消そう！`
+      : `${count}個選択中・${config.minimum}個から消せるよ`;
+    showMessage(text);
+  }
+
+  /* =========================================================
+     通常消去・スペシャル生成
+  ========================================================= */
+  async function resolveNormalClear(chosen) {
+    if (!canOperate()) return;
+    processing = true;
+    clearHint();
+
+    const count = chosen.length;
+    const sourceType = chosen[0].type;
+    const specialAnchor = chosen[chosen.length - 1];
+    const specialToCreate =
+      count >= 9 ? SPECIAL_RAINBOW :
+      count >= 6 ? SPECIAL_BOMB :
+      null;
+
+    const clearSet = new Map();
+    chosen.forEach(piece => clearSet.set(piece.id, piece));
+
+    /* 選択経路にボムが入らない設計だが、データを安全に処理する */
+    expandBombEffects(clearSet);
+
+    const actualRemoved = clearSet.size;
+    const earned = calculateScore(count, actualRemoved);
+    addScore(earned, actualRemoved);
+    playSound(combo > 1 ? "combo" : "remove");
+
+    await animateRemoval([...clearSet.values()]);
+
+    clearSet.forEach(piece => {
+      if (board[piece.row]?.[piece.col]?.id === piece.id) {
+        board[piece.row][piece.col] = null;
+      }
+    });
+
+    collapseAndRefill();
+
+    if (specialToCreate) {
+      const targetRow = Math.min(specialAnchor.row, config.size - 1);
+      const targetCol = Math.min(specialAnchor.col, config.size - 1);
+      const targetPiece = board[targetRow]?.[targetCol];
+
+      if (targetPiece) {
+        targetPiece.special = specialToCreate;
+        targetPiece.type = sourceType;
+      }
+
+      specialEffect(
+        specialToCreate === SPECIAL_RAINBOW
+          ? "レインボー誕生！"
+          : "ボム誕生！"
+      );
+    }
+
+    renderBoard(true);
+    await delay(250);
+
+    processing = false;
+    resetIdleTimer();
+    ensurePlayableBoard();
+  }
+
+  function expandBombEffects(clearSet) {
+    const initial = [...clearSet.values()];
+    initial.forEach(piece => {
+      if (piece.special === SPECIAL_BOMB) {
+        getNeighbors(piece.row, piece.col, true).forEach(target => {
+          clearSet.set(target.id, target);
+        });
+      }
+    });
+  }
+
+  function calculateScore(linkedCount, removedCount) {
+    let multiplier = 1;
+
+    if (linkedCount >= 12) multiplier = 3;
+    else if (linkedCount >= 9) multiplier = 2.4;
+    else if (linkedCount >= 6) multiplier = 1.7;
+    else if (linkedCount >= config.minimum + 2) multiplier = 1.3;
+
+    const now = performance.now();
+
+    if (now - lastClearTime <= COMBO_LIMIT_MS) {
+      combo++;
+    } else {
+      combo = 1;
+    }
+
+    lastClearTime = now;
+    bestCombo = Math.max(bestCombo, combo);
+
+    const comboMultiplier = 1 + Math.min(combo - 1, 10) * .12;
+    return Math.round(removedCount * 100 * multiplier * comboMultiplier);
+  }
+
+  function addScore(points, removedCount) {
+    score += points;
+    totalRemoved += removedCount;
+
+    if (score > highScore) {
+      highScore = score;
+      saveHighScore();
+    }
+
+    updateHud();
+    showFloatingScore(points, combo);
+    reactCharacter("combo");
+    announce(`${removedCount}個消去、${points}点、${combo}コンボ`);
+  }
+
+  async function animateRemoval(pieces) {
+    pieces.forEach(piece => piece.element?.classList.add("removing"));
+    await delay(285);
+  }
+
+  /* =========================================================
+     ボム・レインボー
+  ========================================================= */
+  async function activateBomb(bomb) {
+    if (!canOperate()) return;
+    processing = true;
+    cancelSelection();
+    clearHint();
+
+    const targets = getNeighbors(bomb.row, bomb.col, true);
+    const clearSet = new Map();
+
+    targets.forEach(piece => clearSet.set(piece.id, piece));
+
+    /* 周囲に別のボムがある場合は連鎖させる */
+    let changed = true;
+    while (changed) {
+      changed = false;
+      [...clearSet.values()].forEach(piece => {
+        if (piece.special === SPECIAL_BOMB) {
+          getNeighbors(piece.row, piece.col, true).forEach(target => {
+            if (!clearSet.has(target.id)) {
+              clearSet.set(target.id, target);
+              changed = true;
+            }
+          });
+        }
+      });
+    }
+
+    specialEffect("ボム発動！");
+    playSound("special");
+    vibrate([30, 25, 40]);
+
+    clearSet.forEach(piece => piece.element?.classList.add("special-flash"));
+    await delay(180);
+
+    const earned = calculateScore(clearSet.size, clearSet.size);
+    addScore(earned, clearSet.size);
+    await animateRemoval([...clearSet.values()]);
+
+    clearSet.forEach(piece => {
+      if (board[piece.row]?.[piece.col]?.id === piece.id) {
+        board[piece.row][piece.col] = null;
+      }
+    });
+
+    collapseAndRefill();
+    renderBoard(true);
+    await delay(250);
+
+    processing = false;
+    resetIdleTimer();
+    ensurePlayableBoard();
+  }
+
+  async function activateRainbow(rainbow, targetType) {
+    if (!canOperate()) return;
+    processing = true;
+    clearHint();
+
+    const clearSet = new Map();
+    clearSet.set(rainbow.id, rainbow);
+
+    forEachPiece(piece => {
+      if (!piece.special && piece.type === targetType) {
+        clearSet.set(piece.id, piece);
+      }
+    });
+
+    specialEffect(`${typeNames[targetType]}を全消し！`);
+    playSound("special");
+    vibrate([25, 20, 25, 20, 45]);
+
+    clearSet.forEach(piece => piece.element?.classList.add("special-flash"));
+    await delay(220);
+
+    const earned = calculateScore(clearSet.size, clearSet.size);
+    addScore(earned, clearSet.size);
+    await animateRemoval([...clearSet.values()]);
+
+    clearSet.forEach(piece => {
+      if (board[piece.row]?.[piece.col]?.id === piece.id) {
+        board[piece.row][piece.col] = null;
+      }
+    });
+
+    collapseAndRefill();
+    renderBoard(true);
+    await delay(250);
+
+    processing = false;
+    resetIdleTimer();
+    ensurePlayableBoard();
+  }
+
+  function getNeighbors(row, col, includeCenter = false) {
+    const pieces = [];
+
+    for (let rowOffset = -1; rowOffset <= 1; rowOffset++) {
+      for (let colOffset = -1; colOffset <= 1; colOffset++) {
+        if (!includeCenter && rowOffset === 0 && colOffset === 0) continue;
+
+        const targetRow = row + rowOffset;
+        const targetCol = col + colOffset;
+        const target = board[targetRow]?.[targetCol];
+
+        if (target) pieces.push(target);
+      }
+    }
+
+    return pieces;
+  }
+
+  function collapseAndRefill() {
+    for (let col = 0; col < config.size; col++) {
+      const remaining = [];
+
+      for (let row = config.size - 1; row >= 0; row--) {
+        if (board[row][col]) remaining.push(board[row][col]);
+      }
+
+      for (let row = config.size - 1; row >= 0; row--) {
+        const piece = remaining[config.size - 1 - row] ||
+          createNormalPiece(row, col);
+
+        piece.row = row;
+        piece.col = col;
+        piece.element = null;
+        board[row][col] = piece;
+      }
+    }
+  }
+
+  /* =========================================================
+     ヒント・手詰まり判定
+  ========================================================= */
+  function findHintPath() {
+    for (let row = 0; row < config.size; row++) {
+      for (let col = 0; col < config.size; col++) {
+        const start = board[row]?.[col];
+        if (!start || start.special) continue;
+
+        const path = searchPath(start, config.minimum);
+        if (path) return path;
+      }
+    }
+    return null;
+  }
+
+  function searchPath(start, targetLength) {
+    const visited = new Set([start.id]);
+    const path = [start];
+
+    function depthFirst(piece) {
+      if (path.length >= targetLength) return true;
+
+      const neighbors = getNeighbors(piece.row, piece.col, false);
+
+      for (const neighbor of neighbors) {
+        if (
+          neighbor.special ||
+          neighbor.type !== start.type ||
+          visited.has(neighbor.id)
+        ) continue;
+
+        visited.add(neighbor.id);
+        path.push(neighbor);
+
+        if (depthFirst(neighbor)) return true;
+
+        path.pop();
+        visited.delete(neighbor.id);
+      }
+
+      return false;
+    }
+
+    return depthFirst(start) ? [...path] : null;
+  }
+
+  function showHint() {
+    if (!canOperate() || selecting) return;
+
+    clearHint();
+
+    /* スペシャルピースがあれば、それ自体も有効なヒント */
+    let specialPiece = null;
+    forEachPiece(piece => {
+      if (!specialPiece && piece.special) specialPiece = piece;
+    });
+
+    if (specialPiece) {
+      specialPiece.element?.classList.add("hint");
+      showMessage(
+        specialPiece.special === SPECIAL_BOMB
+          ? "ヒント：光っているボムをタップ！"
+          : "ヒント：レインボーから隣へなぞろう！"
+      );
+      resetIdleTimer();
+      return;
+    }
+
+    const hint = findHintPath();
+
+    if (!hint) {
+      autoShuffle();
+      return;
+    }
+
+    hint.forEach(piece => piece.element?.classList.add("hint"));
+    showMessage("ヒント：光っているピースをつないでみよう！");
+    resetIdleTimer();
+  }
+
+  function clearHint() {
+    boardElement.querySelectorAll(".hint").forEach(element => {
+      element.classList.remove("hint");
+    });
+  }
+
+  function resetIdleTimer() {
+    clearTimeout(idleTimerId);
+    idleTimerId = null;
+
+    if (!gameRunning || paused || processing) return;
+
+    const delayTime = config.hintDelay || HINT_IDLE_MS;
+    idleTimerId = setTimeout(showHint, delayTime);
+  }
+
+  function ensurePlayableBoard() {
+    if (!gameRunning || paused || processing) return;
+
+    let hasSpecial = false;
+    forEachPiece(piece => {
+      if (piece.special) hasSpecial = true;
+    });
+
+    if (hasSpecial || findHintPath()) return;
+    autoShuffle();
+  }
+
+  async function autoShuffle() {
+    if (!gameRunning || paused || processing) return;
+
+    processing = true;
+    cancelSelection();
+    clearHint();
+    showMessage("つながる場所がないので自動シャッフル！");
+
+    await shuffleBoardData();
+    renderBoard(true);
+    playSound("special");
+    await delay(280);
+
+    processing = false;
+    resetIdleTimer();
+  }
+
+  async function manualShuffle() {
+    if (!canOperate()) return;
+
+    processing = true;
+    cancelSelection();
+    clearHint();
+    showMessage("盤面をシャッフルしたよ！");
+    playSound("select");
+
+    await shuffleBoardData();
+    renderBoard(true);
+    await delay(280);
+
+    processing = false;
+    resetIdleTimer();
+  }
+
+  async function shuffleBoardData() {
+    const pieces = [];
+    forEachPiece(piece => {
+      piece.element = null;
+      pieces.push(piece);
+    });
+
+    let attempts = 0;
+
+    do {
+      for (let i = pieces.length - 1; i > 0; i--) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+        [pieces[i], pieces[randomIndex]] = [pieces[randomIndex], pieces[i]];
+      }
+
+      let index = 0;
+      for (let row = 0; row < config.size; row++) {
+        for (let col = 0; col < config.size; col++) {
+          const piece = pieces[index++];
+          piece.row = row;
+          piece.col = col;
+          board[row][col] = piece;
+        }
+      }
+
+      attempts++;
+    } while (!findHintPath() && attempts < 60);
+
+    if (!findHintPath()) {
+      const normalPieces = pieces.filter(piece => !piece.special);
+      if (normalPieces.length >= config.minimum) {
+        const commonType = normalPieces[0].type;
+        for (let i = 0; i < config.minimum; i++) {
+          normalPieces[i].type = commonType;
+        }
+
+        for (let i = 0; i < config.minimum; i++) {
+          const destination = board[0][i];
+          const source = normalPieces[i];
+
+          if (destination.id === source.id) continue;
+
+          const sourceRow = source.row;
+          const sourceCol = source.col;
+
+          board[sourceRow][sourceCol] = destination;
+          destination.row = sourceRow;
+          destination.col = sourceCol;
+
+          board[0][i] = source;
+          source.row = 0;
+          source.col = i;
+        }
+      }
+    }
+
+    await delay(80);
+  }
+
+  /* =========================================================
+     タイマー
+  ========================================================= */
+  function startTimer() {
+    stopTimer();
+    lastTickTime = performance.now();
+    timerId = window.setInterval(updateTimer, 200);
+  }
+
+  function stopTimer() {
+    if (timerId !== null) {
+      clearInterval(timerId);
+      timerId = null;
+    }
+  }
+
+  function updateTimer() {
+    if (!gameRunning || paused) {
+      lastTickTime = performance.now();
+      return;
+    }
+
+    const now = performance.now();
+    const elapsed = (now - lastTickTime) / 1000;
+    lastTickTime = now;
+    timeLeft = Math.max(0, timeLeft - elapsed);
+
+    const displaySecond = Math.ceil(timeLeft);
+    timeValue.textContent = `${displaySecond}秒`;
+
+    timerStat.classList.toggle("warning", displaySecond <= 30 && displaySecond > 10);
+    timerStat.classList.toggle("danger", displaySecond <= 10);
+
+    if (displaySecond <= 10) {
+      gameCharacter.classList.add("urgent");
+
+      if (displaySecond !== warningSoundSecond && displaySecond > 0) {
+        warningSoundSecond = displaySecond;
+        playSound("warning");
+      }
+    } else {
+      gameCharacter.classList.remove("urgent");
+    }
+
+    if (timeLeft <= 0) {
+      endGame();
+    }
+  }
+
+  /* =========================================================
+     ゲーム開始・終了・リトライ
+  ========================================================= */
+  function startGame() {
+    prepareAudio();
+    stopTimer();
+    clearTimeout(idleTimerId);
+    clearTimeout(characterTimerId);
+
+    config = settings[difficulty];
+    score = 0;
+    timeLeft = GAME_TIME;
+    totalRemoved = 0;
+    combo = 0;
+    bestCombo = 0;
+    lastClearTime = 0;
+    warningSoundSecond = -1;
+
+    gameRunning = true;
+    paused = false;
+    processing = false;
+    selecting = false;
+    selection = [];
+    currentPointerId = null;
+    pointerPosition = null;
+    rainbowTargetType = null;
+
+    pauseOverlay.classList.remove("open");
+    gameOverModal.classList.remove("open");
+    titleScreen.classList.remove("active");
+    gameScreen.classList.add("active");
+
+    gameCharacter.className = "character game-character";
+    timerStat.classList.remove("warning", "danger");
+
+    generatePlayableBoard();
+    renderBoard(true);
+    updateHud();
+    showMessage(`${config.minimum}個以上つないで消そう！`);
+    statusNote.textContent =
+      `${config.label}：${config.size}×${config.size}、${config.minimum}個から消去`;
+
+    playSound("start");
+    startTimer();
+    resetIdleTimer();
+
+    requestAnimationFrame(resizeCanvas);
+  }
+
+  function endGame() {
+    if (!gameRunning) return;
+
+    gameRunning = false;
+    paused = false;
+    processing = true;
+    timeLeft = 0;
+
+    stopTimer();
+    clearTimeout(idleTimerId);
+    clearHint();
+    cancelSelection();
+
+    timeValue.textContent = "0秒";
+    gameCharacter.className = "character game-character ended";
+
+    if (score > highScore) {
+      highScore = score;
+      saveHighScore();
+    }
+
+    updateHud();
+    playSound("end");
+    vibrate([40, 40, 60]);
+
+    document.getElementById("resultScore").textContent = formatNumber(score);
+    document.getElementById("resultHighScore").textContent = formatNumber(highScore);
+    document.getElementById("resultRemoved").textContent = formatNumber(totalRemoved);
+    document.getElementById("resultCombo").textContent = String(bestCombo);
+    document.getElementById("resultDifficulty").textContent = config.label;
+
+    setTimeout(() => {
+      gameOverModal.classList.add("open");
+      retryButton.focus();
+    }, 350);
+  }
+
+  function returnToTitle() {
+    stopTimer();
+    clearTimeout(idleTimerId);
+    clearTimeout(characterTimerId);
+    cancelSelection();
+
+    gameRunning = false;
+    paused = false;
+    processing = false;
+    board = [];
+
+    boardElement.querySelectorAll(".piece").forEach(element => element.remove());
+    gameOverModal.classList.remove("open");
+    pauseOverlay.classList.remove("open");
+    gameScreen.classList.remove("active");
+    titleScreen.classList.add("active");
+
+    startButton.focus();
+  }
+
+  /* =========================================================
+     一時停止
+  ========================================================= */
+  function pauseGame(isAutomatic = false) {
+    if (!gameRunning || paused) return;
+
+    paused = true;
+    cancelSelection();
+    clearHint();
+    clearTimeout(idleTimerId);
+    lastTickTime = performance.now();
+
+    pauseOverlay.classList.add("open");
+    document.getElementById("pauseTitle").textContent =
+      isAutomatic ? "自動で一時停止しました" : "ひとやすみ";
+    resumeButton.focus();
+  }
+
+  function resumeGame() {
+    if (!gameRunning || !paused) return;
+
+    paused = false;
+    lastTickTime = performance.now();
+    pauseOverlay.classList.remove("open");
+    showMessage("ゲーム再開！");
+    resetIdleTimer();
+    pauseButton.focus();
+  }
+
+  /* =========================================================
+     表示更新・演出
+  ========================================================= */
+  function updateHud() {
+    scoreValue.textContent = formatNumber(score);
+    highScoreValue.textContent = formatNumber(highScore);
+    timeValue.textContent = `${Math.ceil(timeLeft)}秒`;
+    comboDisplay.textContent = `コンボ ${combo}`;
+  }
+
+  function formatNumber(value) {
+    return Number(value).toLocaleString("ja-JP");
+  }
+
+  function showMessage(text) {
+    const comboText = `<div id="comboDisplay" class="combo-line">コンボ ${combo}</div>`;
+    messageBox.innerHTML = `${escapeHtml(text)}${comboText}`;
+
+    /* innerHTML更新後に参照を維持するため表示値のみ利用 */
+  }
+
+  function escapeHtml(text) {
+    const temporary = document.createElement("div");
+    temporary.textContent = String(text);
+    return temporary.innerHTML;
+  }
+
+  function announce(text) {
+    liveRegion.textContent = "";
+    setTimeout(() => {
+      liveRegion.textContent = text;
+    }, 20);
+  }
+
+  function showFloatingScore(points, comboCount) {
+    const element = document.createElement("div");
+    element.className = "floating-score";
+    element.innerHTML =
+      `+${formatNumber(points)}` +
+      (comboCount > 1 ? `<br><span>${comboCount} COMBO!</span>` : "");
+    document.body.appendChild(element);
+
+    setTimeout(() => element.remove(), 950);
+  }
+
+  function reactCharacter(type) {
+    clearTimeout(characterTimerId);
+    gameCharacter.classList.remove("combo");
+
+    if (type === "combo") {
+      void gameCharacter.offsetWidth;
+      gameCharacter.classList.add("combo");
+      characterTimerId = setTimeout(() => {
+        gameCharacter.classList.remove("combo");
+      }, 1100);
+    }
+  }
+
+  function specialEffect(message) {
+    showMessage(message);
+    document.body.classList.remove("flash-screen", "shake-screen");
+    void document.body.offsetWidth;
+    document.body.classList.add("flash-screen", "shake-screen");
+
+    setTimeout(() => {
+      document.body.classList.remove("flash-screen", "shake-screen");
+    }, 430);
+  }
+
+  function vibrate(pattern) {
+    try {
+      if ("vibrate" in navigator) navigator.vibrate(pattern);
+    } catch (error) {
+      /* 振動非対応端末では何もしない */
+    }
+  }
+
+  function forEachPiece(callback) {
+    for (let row = 0; row < board.length; row++) {
+      for (let col = 0; col < board[row].length; col++) {
+        const piece = board[row][col];
+        if (piece) callback(piece, row, col);
+      }
+    }
+  }
+
+  function delay(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+  }
+
+  /* =========================================================
+     難易度・モーダル・各種イベント
+  ========================================================= */
+  document.querySelectorAll(".difficulty-button").forEach(button => {
+    button.addEventListener("click", () => {
+      prepareAudio();
+      difficulty = button.dataset.difficulty;
+
+      document.querySelectorAll(".difficulty-button").forEach(other => {
+        const selected = other === button;
+        other.classList.toggle("selected", selected);
+        other.setAttribute("aria-checked", String(selected));
+      });
+
+      playSound("select");
+    });
+  });
+
+  startButton.addEventListener("click", startGame);
+  retryButton.addEventListener("click", startGame);
+  backTitleButton.addEventListener("click", returnToTitle);
+
+  pauseButton.addEventListener("click", () => pauseGame(false));
+  resumeButton.addEventListener("click", resumeGame);
+  shuffleButton.addEventListener("click", manualShuffle);
+
+  titleSoundButton.addEventListener("click", toggleSound);
+  gameSoundButton.addEventListener("click", toggleSound);
+
+  howToButton.addEventListener("click", () => {
+    prepareAudio();
+    howToModal.classList.add("open");
+    closeHowToButton.focus();
+  });
+
+  closeHowToButton.addEventListener("click", () => {
+    howToModal.classList.remove("open");
+    howToButton.focus();
+  });
+
+  howToModal.addEventListener("pointerdown", event => {
+    if (event.target === howToModal) {
+      howToModal.classList.remove("open");
+      howToButton.focus();
+    }
+  });
+
+  boardElement.addEventListener("pointerdown", onPointerDown);
+  boardElement.addEventListener("pointermove", onPointerMove);
+  boardElement.addEventListener("pointerup", onPointerUp);
+  boardElement.addEventListener("pointercancel", onPointerCancel);
+  boardElement.addEventListener("lostpointercapture", event => {
+    if (selecting && event.pointerId === currentPointerId) {
+      cancelSelection();
+    }
+  });
+
+  /* 長押しメニューと画面スクロールを抑制 */
+  boardElement.addEventListener("contextmenu", event => event.preventDefault());
+  boardElement.addEventListener("dragstart", event => event.preventDefault());
+
+  window.addEventListener("resize", resizeCanvas, { passive: true });
+  window.addEventListener("orientationchange", () => {
+    setTimeout(resizeCanvas, 250);
+  });
+
+  /* タブやアプリが非表示になったら自動一時停止 */
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && gameRunning && !paused) {
+      pauseGame(true);
+    }
+  });
+
+  /* キーボード利用時はEscapeで遊び方を閉じる */
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && howToModal.classList.contains("open")) {
+      howToModal.classList.remove("open");
+      howToButton.focus();
+    }
+  });
+
+  /* 初期表示 */
+  highScoreValue.textContent = formatNumber(highScore);
+  updateSoundButtons();
+})();
+</script>
+</body>
+</html>
